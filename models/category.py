@@ -15,5 +15,5 @@ class Category(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: int = Field(foreign_key="users.id", index=True)
     name: str
-    type: CategoryType = Field(default=CategoryType.expense)
+    type: CategoryType
     color: Optional[str] = Field(default=None, max_length=7)

@@ -1,57 +1,65 @@
-from datetime import datetime
+from datetime import date, datetime
 from typing import Optional
 
 from pydantic import BaseModel
 
-from models.investment import InvestmentType, InvestmentTradeType
+from models.investment import AssetType
 
 
-class InvestmentBuy(BaseModel):
-    symbol: str
-    quantity: float
+class AssetCreate(BaseModel):
+    ticker: str
+    name: str
+    type: AssetType
+
+
+class AssetRead(BaseModel):
+    id: int
+    ticker: str
+    name: str
+    type: AssetType
+
+
+class BuyOrder(BaseModel):
+    account_id: int
+    asset_id: int
+    shares: float
     price: float
-    name: Optional[str] = None
-    type: InvestmentType = InvestmentType.stock
+    fees: float = 0.0
+    date: date
     currency: str = "EUR"
 
 
-class InvestmentSell(BaseModel):
-    symbol: str
-    quantity: float
+class SellOrder(BaseModel):
+    shares: float
     price: float
-
-
-class PriceUpdate(BaseModel):
-    current_price: float
+    fees: float = 0.0
+    date: date
 
 
 class InvestmentRead(BaseModel):
     id: int
-    symbol: str
-    name: Optional[str]
-    type: InvestmentType
-    quantity: float
-    avg_price: float
-    current_price: Optional[float]
+    account_id: int
+    asset_id: int
+    shares: float
+    avg_buy_price: float
     currency: str
-    created_at: datetime
-    updated_at: datetime
+    opened_at: datetime
+    closed_at: Optional[datetime]
 
 
-class InvestmentTradeRead(BaseModel):
+class InvestmentPosition(BaseModel):
+    """A position enriched with its asset info and invested value."""
+
     id: int
-    investment_id: int
-    symbol: str
-    side: InvestmentTradeType
-    quantity: float
-    price: float
-    realized_pnl: float
-    executed_at: datetime
+    account_id: int
+    asset: AssetRead
+    shares: float
+    avg_buy_price: float
+    invested: float
+    currency: str
 
 
 class InvestmentSummary(BaseModel):
     total_invested: float
-    current_value: float
-    unrealized_pnl: float
-    realized_pnl: float
-    positions: list[InvestmentRead]
+    open_positions: int
+    positions: list[InvestmentPosition]

@@ -4,11 +4,11 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlmodel import Session
 
-from core.security import decode_access_token
+from core.security import decode_token
 from database import get_session
 from models.user import User
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 SessionDep = Annotated[Session, Depends(get_session)]
 
@@ -23,13 +23,13 @@ def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
 
-    subject = decode_access_token(token)
+    subject = decode_token(token)
     if subject is None:
         raise credentials_exception
 
     try:
         user_id = int(subject)
-    except ValueError:
+    except (TypeError, ValueError):
         raise credentials_exception
 
     user = session.get(User, user_id)

@@ -1,20 +1,22 @@
-from sqlmodel import SQLModel, Session, create_engine
+import os
 
-from config import settings
+from dotenv import load_dotenv
+from sqlmodel import Session, SQLModel, create_engine
 
-# SQLite needs check_same_thread disabled for use with FastAPI's threadpool.
-connect_args = (
-    {"check_same_thread": False}
-    if settings.DATABASE_URL.startswith("sqlite")
-    else {}
-)
+load_dotenv()
 
-engine = create_engine(settings.DATABASE_URL, echo=False, connect_args=connect_args)
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./finance.db")
+
+# SQLite needs check_same_thread=False to work with FastAPI's threadpool.
+# PostgreSQL (or any other backend) needs no extra connect args.
+connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+
+engine = create_engine(DATABASE_URL, echo=False, connect_args=connect_args)
 
 
-def init_db() -> None:
-    """Create all tables. Import models so they register with SQLModel.metadata."""
-    import models  # noqa: F401  (ensures model modules are imported)
+def create_db_and_tables() -> None:
+    """Create all tables. Importing models registers them in SQLModel.metadata."""
+    import models  # noqa: F401
 
     SQLModel.metadata.create_all(engine)
 

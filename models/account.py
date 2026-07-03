@@ -6,12 +6,11 @@ from sqlmodel import Field, SQLModel
 
 
 class AccountType(str, Enum):
-    checking = "checking"
-    savings = "savings"
+    bank = "bank"
+    broker = "broker"
+    crypto = "crypto"
     cash = "cash"
-    credit = "credit"
-    investment = "investment"
-    other = "other"
+    pension = "pension"
 
 
 class Account(SQLModel, table=True):
@@ -20,9 +19,6 @@ class Account(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: int = Field(foreign_key="users.id", index=True)
     name: str
-    type: AccountType = Field(default=AccountType.checking)
+    type: AccountType
     currency: str = Field(default="EUR", max_length=3)
-    balance: float = Field(default=0.0)
-    created_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc)
-    )
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

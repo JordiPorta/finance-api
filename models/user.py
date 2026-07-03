@@ -8,10 +8,7 @@ class User(SQLModel, table=True):
     __tablename__ = "users"
 
     id: Optional[int] = Field(default=None, primary_key=True)
-    email: str = Field(index=True, unique=True)
-    full_name: Optional[str] = None
-    hashed_password: str
-    is_active: bool = Field(default=True)
-    created_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc)
-    )
+    email: str = Field(unique=True, index=True)
+    password_hash: str
+    name: str
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

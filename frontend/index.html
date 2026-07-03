@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FIN/TERM — Finance Terminal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <!-- ============ AUTH ============ -->
+  <div id="login-view" class="auth-wrap hidden">
+    <div class="auth-card">
+      <div class="auth-logo">FIN<span>/</span>TERM</div>
+      <div class="auth-sub" id="auth-sub">AUTHENTICATION REQUIRED</div>
+      <div id="auth-error" class="auth-error hidden"></div>
+
+      <form id="login-form">
+        <label>EMAIL</label>
+        <input type="email" id="login-email" required autocomplete="email" />
+        <label>PASSWORD</label>
+        <input type="password" id="login-password" required autocomplete="current-password" />
+        <button type="submit" class="btn primary block">LOG IN</button>
+        <div class="auth-switch">No account? <a href="#" id="show-register">Register</a></div>
+      </form>
+
+      <form id="register-form" class="hidden">
+        <label>NAME</label>
+        <input type="text" id="reg-name" required autocomplete="name" />
+        <label>EMAIL</label>
+        <input type="email" id="reg-email" required autocomplete="email" />
+        <label>PASSWORD</label>
+        <input type="password" id="reg-password" required minlength="6" autocomplete="new-password" />
+        <button type="submit" class="btn primary block">CREATE ACCOUNT</button>
+        <div class="auth-switch">Have an account? <a href="#" id="show-login">Log in</a></div>
+      </form>
+
+      <div class="auth-api">API: <span id="auth-api-base"></span></div>
+    </div>
+  </div>
+
+  <!-- ============ APP ============ -->
+  <div id="app" class="app hidden">
+    <aside class="sidebar">
+      <div class="logo">FIN<span>/</span>TERM</div>
+      <nav id="nav">
+        <a href="#/dashboard" data-view="dashboard"><span class="nav-key">01</span> DASHBOARD</a>
+        <a href="#/accounts" data-view="accounts"><span class="nav-key">02</span> ACCOUNTS</a>
+        <a href="#/transactions" data-view="transactions"><span class="nav-key">03</span> TRANSACTIONS</a>
+        <a href="#/investments" data-view="investments"><span class="nav-key">04</span> INVESTMENTS</a>
+        <a href="#/networth" data-view="networth"><span class="nav-key">05</span> NET WORTH</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-email" id="user-email">—</div>
+        <button id="logout-btn" class="btn ghost block">LOGOUT</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <!-- DASHBOARD -->
+      <section id="view-dashboard" class="view hidden">
+        <div class="view-header">
+          <h1>DASHBOARD</h1>
+          <input type="month" id="dash-month" class="month-input" />
+        </div>
+        <div class="kpi-row">
+          <div class="kpi"><div class="kpi-label">INCOME</div><div class="kpi-value pos" id="kpi-income">—</div></div>
+          <div class="kpi"><div class="kpi-label">EXPENSES</div><div class="kpi-value neg" id="kpi-expenses">—</div></div>
+          <div class="kpi"><div class="kpi-label">NET CASHFLOW</div><div class="kpi-value" id="kpi-net">—</div></div>
+          <div class="kpi"><div class="kpi-label">SAVINGS RATE</div><div class="kpi-value" id="kpi-savings">—</div></div>
+        </div>
+        <div class="panel-grid two">
+          <div class="panel">
+            <div class="panel-title">CASHFLOW — LAST 6 MONTHS</div>
+            <div id="cashflow-chart" class="cashflow-chart"></div>
+            <div class="legend">
+              <span><i class="dot income"></i>INCOME</span>
+              <span><i class="dot expense"></i>EXPENSES</span>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-title">EXPENSES BY CATEGORY — <span id="cat-month-label"></span></div>
+            <div id="category-bars" class="category-bars"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ACCOUNTS -->
+      <section id="view-accounts" class="view hidden">
+        <div class="view-header"><h1>ACCOUNTS</h1></div>
+
+        <div class="panel">
+          <div class="panel-title">NEW ACCOUNT</div>
+          <form id="account-form" class="inline-form">
+            <div class="field grow"><label>NAME</label><input type="text" id="acc-name" placeholder="e.g. Main Bank" required /></div>
+            <div class="field"><label>TYPE</label>
+              <select id="acc-type">
+                <option value="bank">BANK</option><option value="broker">BROKER</option>
+                <option value="crypto">CRYPTO</option><option value="cash">CASH</option>
+                <option value="pension">PENSION</option>
+              </select>
+            </div>
+            <div class="field"><label>CURRENCY</label><input type="text" id="acc-currency" value="EUR" maxlength="3" /></div>
+            <button type="submit" class="btn primary">CREATE ACCOUNT</button>
+          </form>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">YOUR ACCOUNTS</div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr><th>NAME</th><th>TYPE</th><th>CCY</th><th>CREATED</th><th></th></tr>
+              </thead>
+              <tbody id="acc-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TRANSACTIONS -->
+      <section id="view-transactions" class="view hidden">
+        <div class="view-header"><h1>TRANSACTIONS</h1></div>
+
+        <div id="no-account-hint" class="hint-banner hidden">
+          ⚠ NO ACCOUNTS YET — create one below (or on the <a href="#/accounts">ACCOUNTS</a> page) before adding transactions
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">NEW TRANSACTION</div>
+          <form id="tx-form" class="inline-form">
+            <div class="field"><label>DATE</label><input type="date" id="tx-date" required /></div>
+            <div class="field">
+              <label>ACCOUNT <a href="#" id="toggle-new-account" class="mini-link">+ new</a></label>
+              <select id="tx-account" required></select>
+            </div>
+            <div class="field">
+              <label>CATEGORY <a href="#" id="toggle-new-category" class="mini-link">+ new</a></label>
+              <select id="tx-category"><option value="">—</option></select>
+            </div>
+            <div class="field"><label>TYPE</label>
+              <select id="tx-type"><option value="expense">EXPENSE</option><option value="income">INCOME</option></select>
+            </div>
+            <div class="field"><label>AMOUNT</label><input type="number" id="tx-amount" step="0.01" min="0.01" required /></div>
+            <div class="field grow"><label>DESCRIPTION</label><input type="text" id="tx-description" /></div>
+            <button type="submit" class="btn primary">ADD</button>
+          </form>
+
+          <form id="new-account-form" class="inline-form subform hidden">
+            <div class="field"><label>ACCOUNT NAME</label><input type="text" id="na-name" required /></div>
+            <div class="field"><label>TYPE</label>
+              <select id="na-type">
+                <option value="bank">BANK</option><option value="broker">BROKER</option>
+                <option value="crypto">CRYPTO</option><option value="cash">CASH</option>
+                <option value="pension">PENSION</option>
+              </select>
+            </div>
+            <div class="field"><label>CURRENCY</label><input type="text" id="na-currency" value="EUR" maxlength="3" /></div>
+            <button type="submit" class="btn">CREATE ACCOUNT</button>
+          </form>
+
+          <form id="new-category-form" class="inline-form subform hidden">
+            <div class="field"><label>CATEGORY NAME</label><input type="text" id="nc-name" required /></div>
+            <div class="field"><label>TYPE</label>
+              <select id="nc-type"><option value="expense">EXPENSE</option><option value="income">INCOME</option></select>
+            </div>
+            <div class="field"><label>COLOR</label><input type="color" id="nc-color" value="#ffb020" /></div>
+            <button type="submit" class="btn">CREATE CATEGORY</button>
+          </form>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">HISTORY</div>
+          <div class="filters">
+            <div class="field"><label>FROM</label><input type="date" id="f-from" /></div>
+            <div class="field"><label>TO</label><input type="date" id="f-to" /></div>
+            <div class="field"><label>CATEGORY</label><select id="f-category"><option value="">ALL</option></select></div>
+            <div class="field"><label>ACCOUNT</label><select id="f-account"><option value="">ALL</option></select></div>
+            <div class="field"><label>TYPE</label>
+              <select id="f-type"><option value="">ALL</option><option value="income">INCOME</option><option value="expense">EXPENSE</option></select>
+            </div>
+            <button id="f-clear" class="btn ghost">CLEAR</button>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr><th>DATE</th><th>DESCRIPTION</th><th>CATEGORY</th><th>ACCOUNT</th><th>TYPE</th><th class="num">AMOUNT</th><th></th></tr>
+              </thead>
+              <tbody id="tx-tbody"></tbody>
+            </table>
+          </div>
+          <div class="table-footer" id="tx-footer"></div>
+        </div>
+      </section>
+
+      <!-- INVESTMENTS -->
+      <section id="view-investments" class="view hidden">
+        <div class="view-header"><h1>INVESTMENTS</h1></div>
+        <div class="kpi-row">
+          <div class="kpi"><div class="kpi-label">TOTAL INVESTED</div><div class="kpi-value" id="kpi-invested">—</div></div>
+          <div class="kpi"><div class="kpi-label">OPEN POSITIONS</div><div class="kpi-value" id="kpi-positions">—</div></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">OPEN POSITIONS</div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr><th>TICKER</th><th>NAME</th><th>TYPE</th><th class="num">SHARES</th><th class="num">AVG BUY</th><th class="num">INVESTED</th><th>CCY</th></tr>
+              </thead>
+              <tbody id="inv-tbody"></tbody>
+            </table>
+          </div>
+          <div class="table-footer muted">Buys/sells are recorded via the API — see <span class="mono">/docs</span> → POST /investments/</div>
+        </div>
+      </section>
+
+      <!-- NET WORTH -->
+      <section id="view-networth" class="view hidden">
+        <div class="view-header">
+          <h1>NET WORTH</h1>
+          <button id="snapshot-btn" class="btn primary">⊕ TAKE SNAPSHOT</button>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi"><div class="kpi-label">NET WORTH</div><div class="kpi-value" id="kpi-nw">—</div></div>
+          <div class="kpi"><div class="kpi-label">LIQUID CASH</div><div class="kpi-value" id="kpi-nw-cash">—</div></div>
+          <div class="kpi"><div class="kpi-label">INVESTMENTS</div><div class="kpi-value" id="kpi-nw-inv">—</div></div>
+          <div class="kpi"><div class="kpi-label">LAST SNAPSHOT</div><div class="kpi-value small" id="kpi-nw-date">—</div></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">NET WORTH OVER TIME</div>
+          <div id="networth-chart"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">SNAPSHOTS</div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr><th>DATE</th><th class="num">CASH</th><th class="num">INVESTMENTS</th><th class="num">ASSETS</th><th class="num">LIABILITIES</th><th class="num">NET</th></tr>
+              </thead>
+              <tbody id="nw-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="js/utils.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/accounts.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/transactions.js"></script>
+  <script src="js/investments.js"></script>
+  <script src="js/networth.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

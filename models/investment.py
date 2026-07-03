@@ -1,61 +1,56 @@
-from datetime import datetime, timezone
+from datetime import date as date_type, datetime, timezone
 from enum import Enum
 from typing import Optional
 
 from sqlmodel import Field, SQLModel
 
 
-class InvestmentType(str, Enum):
+class AssetType(str, Enum):
     stock = "stock"
     etf = "etf"
     crypto = "crypto"
-    bond = "bond"
     fund = "fund"
-    other = "other"
 
 
-class Investment(SQLModel, table=True):
-    """A holding position for a given symbol, updated on buy/sell operations."""
-
-    __tablename__ = "investments"
-
-    id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: int = Field(foreign_key="users.id", index=True)
-    symbol: str = Field(index=True)
-    name: Optional[str] = None
-    type: InvestmentType = Field(default=InvestmentType.stock)
-    quantity: float = Field(default=0.0)
-    # Average purchase price per unit for the currently held quantity.
-    avg_price: float = Field(default=0.0)
-    current_price: Optional[float] = None
-    currency: str = Field(default="EUR", max_length=3)
-    created_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc)
-    )
-    updated_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc)
-    )
-
-
-class InvestmentTradeType(str, Enum):
+class OperationType(str, Enum):
     buy = "buy"
     sell = "sell"
 
 
-class InvestmentTrade(SQLModel, table=True):
-    """Immutable log of every buy/sell operation, used for history."""
-
-    __tablename__ = "investment_trades"
+class Asset(SQLModel, table=True):
+    __tablename__ = "assets"
 
     id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: int = Field(foreign_key="users.id", index=True)
+    ticker: str = Field(unique=True, index=True)
+    name: str
+    type: AssetType
+
+
+class Investment(SQLModel, table=True):
+    """An open (or closed) position of an asset held in an account."""
+
+    __tablename__ = "investments"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    account_id: int = Field(foreign_key="accounts.id", index=True)
+    asset_id: int = Field(foreign_key="assets.id", index=True)
+    shares: float = Field(default=0.0)
+    avg_buy_price: float = Field(default=0.0)
+    currency: str = Field(default="EUR", max_length=3)
+    opened_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    closed_at: Optional[datetime] = None
+
+
+class InvestmentOperation(SQLModel, table=True):
+    """Immutable log of every buy/sell executed on an investment."""
+
+    __tablename__ = "investment_operations"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
     investment_id: int = Field(foreign_key="investments.id", index=True)
-    symbol: str = Field(index=True)
-    side: InvestmentTradeType
-    quantity: float
+    type: OperationType
+    shares: float
     price: float
-    # Realized profit/loss for a sell operation (0 for buys).
-    realized_pnl: float = Field(default=0.0)
-    executed_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc)
-    )
+    fees: float = Field(default=0.0)
+    date: date_type = Field(index=True)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
