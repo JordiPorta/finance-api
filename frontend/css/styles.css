@@ -13,6 +13,9 @@
   --green: #00d97e;
   --red: #ff5c5c;
   --blue: #4da3ff;
+  /* chart series — validated pair for the dark panel surface */
+  --chart-value: #c67f00;
+  --chart-invested: #3392cc;
   --font-ui: "Inter", system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", monospace;
 }
@@ -297,6 +300,9 @@ label {
 .dot { display: inline-block; width: 8px; height: 8px; margin-right: 6px; }
 .dot.income { background: var(--green); }
 .dot.expense { background: var(--red); }
+.dot.value { background: var(--chart-value); }
+.dot.invested { background: var(--chart-invested); }
+.dot.proj { background: var(--chart-value); opacity: 0.55; }
 
 /* ============ Category bars ============ */
 .category-bars { display: flex; flex-direction: column; gap: 10px; }
@@ -430,6 +436,33 @@ label {
 .linechart .line { fill: none; stroke: var(--amber); stroke-width: 2; }
 .linechart .area { fill: url(#nw-grad); }
 .linechart circle { fill: var(--amber); }
+
+/* Multi-series chart */
+.mchart-wrap { position: relative; }
+.mline { fill: none; stroke-width: 2; }
+.mline.value { stroke: var(--chart-value); }
+.mline.invested { stroke: var(--chart-invested); }
+.mline.proj { stroke: var(--chart-value); opacity: 0.8; }
+.mline.dashed { stroke-dasharray: 6 5; }
+.band.proj { fill: rgba(198, 127, 0, 0.13); }
+.xhair { stroke: var(--border-strong); stroke-width: 1; pointer-events: none; }
+.chart-tip {
+  position: absolute;
+  pointer-events: none;
+  background: var(--bg-alt);
+  border: 1px solid var(--border-strong);
+  padding: 8px 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text);
+  white-space: nowrap;
+  z-index: 5;
+}
+.chart-tip .tip-date { color: var(--muted); margin-bottom: 4px; }
+.chart-tip b { font-weight: 600; }
+.note-cell { max-width: 340px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); }
+.proj-summary { margin-top: 10px; font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.proj-summary b { color: var(--text); }
 
 /* ============ Toast ============ */
 .toast {

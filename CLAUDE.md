@@ -38,9 +38,11 @@ Accounts have **no balance column** — balances/net worth are derived: liquid c
 
 ### Investments domain (three tables in `models/investment.py`)
 
-- `Asset` — global catalog, **shared across all users** (ticker unique).
-- `Investment` — one open position per (account, asset). Buys recalculate the weighted average `avg_buy_price`; selling down to 0 shares sets `closed_at` (positions are never deleted).
-- `InvestmentOperation` — immutable buy/sell log, used for `/history`.
+- `Asset` — global catalog, **shared across all users** (ticker unique; optional `isin`, `last_price` for current-value/return calcs).
+- `Investment` — one open position per (account, asset). `shares`/`avg_buy_price` are **always rebuilt by replaying the operation log** (`_recompute_position` in `routers/investments.py`) — never mutate them incrementally, or splits/out-of-order ops corrupt them. Selling down to 0 shares sets `closed_at` (positions are never deleted).
+- `InvestmentOperation` — immutable buy/sell/**split** log. For splits, `shares` holds the ratio (25 = 25:1). Ops carry `amount` (exact cash, preferred over shares×price for invested totals) and `note`.
+- `POST /investments/import/xlsx` imports the personal Excel format (headers: ISIN, Import, Price, Date, Reason, Cantidad (acciones), Comisión (€)); idempotent — duplicate (investment, date, shares, price) rows are skipped. Splits are NOT auto-detected: register them via `POST /investments/{id}/split` after importing.
+- `GET /investments/{id}/progress` derives the invested-vs-value time series (value at each op = cumulative shares × that day's price), consumed by the frontend INVESTMENTS view.
 
 ### Registration requirements
 

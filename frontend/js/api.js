@@ -8,7 +8,7 @@ const Api = {
   setToken: (t) => localStorage.setItem("fin_token", t),
   clearToken: () => localStorage.removeItem("fin_token"),
 
-  async request(path, { method = "GET", body, params } = {}) {
+  async request(path, { method = "GET", body, formData, params } = {}) {
     const url = new URL(API_BASE + path);
     if (params) {
       for (const [k, v] of Object.entries(params)) {
@@ -26,7 +26,8 @@ const Api = {
       res = await fetch(url, {
         method,
         headers,
-        body: body !== undefined ? JSON.stringify(body) : undefined,
+        // FormData sets its own multipart Content-Type boundary.
+        body: formData !== undefined ? formData : body !== undefined ? JSON.stringify(body) : undefined,
       });
     } catch (_) {
       throw new Error(`API unreachable at ${API_BASE} — is the server running?`);
@@ -57,5 +58,7 @@ const Api = {
   get: (path, params) => Api.request(path, { params }),
   post: (path, body) => Api.request(path, { method: "POST", body }),
   put: (path, body) => Api.request(path, { method: "PUT", body }),
+  patch: (path, body) => Api.request(path, { method: "PATCH", body }),
   del: (path) => Api.request(path, { method: "DELETE" }),
+  upload: (path, formData) => Api.request(path, { method: "POST", formData }),
 };

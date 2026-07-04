@@ -200,22 +200,83 @@
 
       <!-- INVESTMENTS -->
       <section id="view-investments" class="view hidden">
-        <div class="view-header"><h1>INVESTMENTS</h1></div>
-        <div class="kpi-row">
-          <div class="kpi"><div class="kpi-label">TOTAL INVESTED</div><div class="kpi-value" id="kpi-invested">—</div></div>
-          <div class="kpi"><div class="kpi-label">OPEN POSITIONS</div><div class="kpi-value" id="kpi-positions">—</div></div>
+        <div class="view-header">
+          <h1>INVESTMENTS</h1>
+          <select id="prog-position" class="month-input"></select>
         </div>
+        <div class="kpi-row">
+          <div class="kpi"><div class="kpi-label">INVESTED</div><div class="kpi-value" id="kpi-invested">—</div></div>
+          <div class="kpi"><div class="kpi-label">CURRENT VALUE</div><div class="kpi-value" id="kpi-value">—</div></div>
+          <div class="kpi"><div class="kpi-label">RETURN</div><div class="kpi-value" id="kpi-return">—</div></div>
+          <div class="kpi"><div class="kpi-label">FEES PAID</div><div class="kpi-value" id="kpi-fees">—</div></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">PROGRESS — INVESTED VS VALUE</div>
+          <div id="progress-chart"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">PROJECTION — IF I KEEP THE DCA GOING</div>
+          <form id="proj-form" class="inline-form">
+            <div class="field"><label>MONTHLY (€)</label><input type="number" id="proj-monthly" step="50" min="0" /></div>
+            <div class="field"><label>MONTHS AHEAD</label><input type="number" id="proj-months" value="12" min="1" max="120" /></div>
+            <div class="field"><label>ANNUAL RETURN %</label><input type="number" id="proj-return" value="7" step="0.5" /></div>
+            <div class="field"><label>RANGE ± PP</label><input type="number" id="proj-band" value="7" step="1" min="0" /></div>
+            <button type="submit" class="btn primary">PROJECT</button>
+          </form>
+          <div id="projection-chart"></div>
+          <div id="proj-summary" class="proj-summary"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">BUY LOG</div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr><th>DATE</th><th class="num">AMOUNT</th><th class="num">PRICE</th><th class="num">SHARES</th><th class="num">FEE</th><th class="num">VALUE THEN</th><th class="num">RETURN</th><th>REASON</th></tr>
+              </thead>
+              <tbody id="oplog-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
         <div class="panel">
           <div class="panel-title">OPEN POSITIONS</div>
           <div class="table-wrap">
             <table class="data-table">
               <thead>
-                <tr><th>TICKER</th><th>NAME</th><th>TYPE</th><th class="num">SHARES</th><th class="num">AVG BUY</th><th class="num">INVESTED</th><th>CCY</th></tr>
+                <tr><th>TICKER</th><th>NAME</th><th>TYPE</th><th class="num">SHARES</th><th class="num">AVG BUY</th><th class="num">INVESTED</th><th class="num">LAST PRICE</th><th>CCY</th></tr>
               </thead>
               <tbody id="inv-tbody"></tbody>
             </table>
           </div>
-          <div class="table-footer muted">Buys/sells are recorded via the API — see <span class="mono">/docs</span> → POST /investments/</div>
+        </div>
+
+        <div class="panel-grid two">
+          <div class="panel">
+            <div class="panel-title">IMPORT FROM EXCEL (.XLSX)</div>
+            <form id="import-form" class="inline-form">
+              <div class="field"><label>ACCOUNT</label><select id="import-account" required></select></div>
+              <div class="field grow"><label>FILE</label><input type="file" id="import-file" accept=".xlsx" required /></div>
+              <button type="submit" class="btn primary">IMPORT</button>
+            </form>
+            <div class="table-footer muted">
+              Columns: <span class="mono">ISIN · Import · Price · Date · Reason · Cantidad (acciones) · Comisión (€)</span> — re-importing skips rows already loaded.
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-title">TOOLS</div>
+            <form id="price-form" class="inline-form">
+              <div class="field"><label>CURRENT PRICE (€)</label><input type="number" id="cur-price" step="0.001" min="0" /></div>
+              <button type="submit" class="btn">UPDATE PRICE</button>
+            </form>
+            <form id="split-form" class="inline-form">
+              <div class="field"><label>SPLIT RATIO (25 = 25:1)</label><input type="number" id="split-ratio" step="0.01" min="0.01" /></div>
+              <div class="field"><label>DATE</label><input type="date" id="split-date" /></div>
+              <button type="submit" class="btn">REGISTER SPLIT</button>
+            </form>
+          </div>
         </div>
       </section>
 

@@ -15,6 +15,8 @@ class AssetType(str, Enum):
 class OperationType(str, Enum):
     buy = "buy"
     sell = "sell"
+    # Stock split: `shares` holds the ratio (25 for a 25:1 split), price/amount unused.
+    split = "split"
 
 
 class Asset(SQLModel, table=True):
@@ -22,8 +24,11 @@ class Asset(SQLModel, table=True):
 
     id: Optional[int] = Field(default=None, primary_key=True)
     ticker: str = Field(unique=True, index=True)
+    isin: Optional[str] = Field(default=None, unique=True, index=True)
     name: str
     type: AssetType
+    last_price: Optional[float] = None
+    last_price_at: Optional[datetime] = None
 
 
 class Investment(SQLModel, table=True):
@@ -51,6 +56,9 @@ class InvestmentOperation(SQLModel, table=True):
     type: OperationType
     shares: float
     price: float
+    # Exact cash moved (buy cost / sell proceeds); shares * price may drift by rounding.
+    amount: Optional[float] = None
     fees: float = Field(default=0.0)
+    note: Optional[str] = None
     date: date_type = Field(index=True)
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

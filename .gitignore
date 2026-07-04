@@ -40,3 +40,6 @@ htmlcov/
 
 # Agent tooling scaffolding, not app code
 finance-frontend/
+
+# Local spreadsheets (reference data, never commit)
+*.xlsx
