@@ -43,3 +43,6 @@ finance-frontend/
 
 # Local spreadsheets (reference data, never commit)
 *.xlsx
+
+# Local Claude Code project instructions, not for the repo
+CLAUDE.md
